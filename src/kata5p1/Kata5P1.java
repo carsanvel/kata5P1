@@ -2,17 +2,20 @@ package kata5p1;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 public class Kata5P1 {
 
     public static void main(String[] args) {
-        String sql = "CREATE TABLE IF NOT EXISTS direc_email (\n" +
-             "id integer PRIMARY KEY AUTOINCREMENT, \n" +
-             "direccion text NOT NULL);";
-        createTable("kata5.db", sql);
+        String path = "emails.txt";
+        List<String> list  = MailListReader.read(path);
+        for (String email : list) {
+            insert(email, "kata5.db");
+        }
     }
     
     public static Connection connect(String name) {
@@ -51,6 +54,19 @@ public class Kata5P1 {
             System.out.println("Tabla creada");
         }
         catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public static void insert(String email, String name) {
+        String sql  = "INSERT INTO direc_email(direccion) VALUES(?)";
+        Connection con = connect(name);
+        try {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, email);
+            stmt.executeUpdate();
+        }
+        catch(SQLException e) {
             System.out.println(e.getMessage());
         }
     }
